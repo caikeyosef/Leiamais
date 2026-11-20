@@ -1,0 +1,6 @@
+{
+  "name": "LEIA +",
+  "description": "Rastreador de leitura minimalista com inteligência artificial, ofensiva diária, diário de reflexões e glossário pessoal.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
