@@ -2,16 +2,31 @@ import { useEffect, useState } from 'react';
 import {
   AlertCircle,
   ArrowLeft,
+  BookOpen,
   CheckCircle2,
   Loader2,
   RotateCcw,
   Sparkles,
   Trash2,
 } from 'lucide-react';
-import type { Book, BookSubTab, ReadingNote, VocabularyWord } from '../types/reading';
+import type {
+  Book,
+  BookSubTab,
+  DictionarySourceId,
+  ReadingNote,
+  VocabularyWord,
+} from '../types/reading';
 import { calculateBookProgress, formatPtBrDate } from '../utils/readingStats';
-import { defineWordWithAI, synthesizeNotesWithAI } from '../utils/api';
+import { lookupWordInDictionaries, synthesizeNotesWithAI } from '../utils/api';
 import { BookCover } from './BookCover';
+
+const DICTIONARY_SOURCES: Array<{ id: DictionarySourceId; label: string }> = [
+  { id: 'auto', label: 'Todas as bases' },
+  { id: 'dicio', label: 'Dicio' },
+  { id: 'aulete', label: 'Aulete' },
+  { id: 'michaelis', label: 'Michaelis' },
+  { id: 'priberam', label: 'Priberam' },
+];
 
 interface BookDetailViewProps {
   book: Book;
@@ -28,7 +43,14 @@ interface BookDetailViewProps {
   onSaveNotesSynthesis: (bookId: string, synthesis: string) => void;
   onAddWord: (
     bookId: string,
-    payload: { word: string; definicao: string; sinonimos: string[]; exemplo: string }
+    payload: {
+      word: string;
+      definicao: string;
+      sinonimos: string[];
+      exemplo: string;
+      fonte?: string;
+      classe?: string;
+    }
   ) => void;
   onDeleteWord: (wordId: string) => void;
 }
@@ -65,6 +87,7 @@ export function BookDetailView({
 
   // Vocabulary controls
   const [wordDraft, setWordDraft] = useState('');
+  const [dictionarySource, setDictionarySource] = useState<DictionarySourceId>('auto');
   const [isDefiningWord, setIsDefiningWord] = useState(false);
   const [wordError, setWordError] = useState<string | null>(null);
   const [manualWordMode, setManualWordMode] = useState(false);
@@ -143,7 +166,7 @@ export function BookDetailView({
     e.preventDefault();
     const cleanWord = wordDraft.trim();
     if (!cleanWord) {
-      setWordError('Digite uma palavra para salvar.');
+      setWordError('Digite uma palavra para consultar ou salvar.');
       return;
     }
 
@@ -160,8 +183,9 @@ export function BookDetailView({
           .split(',')
           .map((s) => s.trim())
           .filter(Boolean)
-          .slice(0, 3),
+          .slice(0, 4),
         exemplo: manualExample.trim(),
+        fonte: 'Manual',
       });
       setWordDraft('');
       setManualDef('');
@@ -174,19 +198,21 @@ export function BookDetailView({
     setIsDefiningWord(true);
     setWordError(null);
     try {
-      const result = await defineWordWithAI(cleanWord, book.title, book.author);
+      const result = await lookupWordInDictionaries(cleanWord, dictionarySource);
       onAddWord(book.id, {
-        word: cleanWord,
+        word: result.palavra || cleanWord,
         definicao: result.definicao,
         sinonimos: result.sinonimos,
         exemplo: result.exemplo,
+        fonte: result.fonte,
+        classe: result.classe,
       });
       setWordDraft('');
     } catch (err) {
       setWordError(
         err instanceof Error
           ? err.message
-          : 'Não foi possível buscar a definição com IA agora. Você pode alternar para o modo manual offline.'
+          : 'Não foi possível consultar o significado agora. Você pode salvar manualmente no modo offline.'
       );
     } finally {
       setIsDefiningWord(false);
@@ -608,11 +634,13 @@ export function BookDetailView({
         <section aria-label="Glossário de palavras difíceis do livro" className="space-y-6">
           <form
             onSubmit={handleWordSubmit}
-            className="rounded-xl border border-neutral-200 bg-white p-5 sm:p-6 space-y-3.5"
+            className="rounded-xl border border-neutral-200 bg-white p-5 sm:p-6 space-y-4"
           >
             <div className="flex flex-wrap items-center justify-between gap-2">
               <label htmlFor="difficult-word-input" className="text-sm font-medium text-[#111111]">
-                {manualWordMode ? 'Salvar palavra manualmente (offline)' : 'Consultar e salvar no glossário da obra'}
+                {manualWordMode
+                  ? 'Salvar palavra manualmente (offline)'
+                  : 'Consultar em dicionários de português'}
               </label>
               <button
                 type="button"
@@ -622,9 +650,41 @@ export function BookDetailView({
                 }}
                 className="text-xs font-medium text-neutral-600 underline underline-offset-4 hover:text-[#111111] cursor-pointer"
               >
-                {manualWordMode ? 'Usar IA (online)' : 'Definir manualmente (offline)'}
+                {manualWordMode ? 'Usar dicionários online' : 'Definir manualmente (offline)'}
               </button>
             </div>
+
+            {!manualWordMode && (
+              <div className="space-y-1.5">
+                <span className="block text-xs text-neutral-500">Base de consulta</span>
+                <div
+                  role="radiogroup"
+                  aria-label="Escolher dicionário de referência"
+                  className="flex flex-wrap gap-1.5"
+                >
+                  {DICTIONARY_SOURCES.map((src) => {
+                    const selected = dictionarySource === src.id;
+                    return (
+                      <button
+                        key={src.id}
+                        type="button"
+                        role="radio"
+                        aria-checked={selected}
+                        onClick={() => setDictionarySource(src.id)}
+                        disabled={isDefiningWord}
+                        className={`min-h-[34px] rounded-md border px-2.5 py-1 text-xs font-medium transition-colors whitespace-nowrap cursor-pointer ${
+                          selected
+                            ? 'border-[#111111] bg-[#111111] text-white'
+                            : 'border-neutral-300 bg-white text-neutral-700 hover:border-[#111111] hover:text-[#111111]'
+                        }`}
+                      >
+                        {src.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             <div className="flex flex-col sm:flex-row gap-2.5">
               <input
@@ -648,9 +708,9 @@ export function BookDetailView({
                   {isDefiningWord ? (
                     <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
                   ) : (
-                    <Sparkles className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
+                    <BookOpen className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
                   )}
-                  <span>{isDefiningWord ? 'Consultando...' : 'Salvar com IA'}</span>
+                  <span>{isDefiningWord ? 'Consultando...' : 'Buscar e salvar'}</span>
                 </button>
               )}
             </div>
@@ -715,10 +775,24 @@ export function BookDetailView({
             {wordError && (
               <div
                 role="alert"
-                className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50/70 px-3.5 py-2.5 text-xs text-red-800"
+                className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded-lg border border-red-200 bg-red-50/70 px-3.5 py-2.5 text-xs text-red-800"
               >
-                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-                <span>{wordError}</span>
+                <div className="flex items-start gap-2">
+                  <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+                  <span>{wordError}</span>
+                </div>
+                {!manualWordMode && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setManualWordMode(true);
+                      setWordError(null);
+                    }}
+                    className="self-start sm:self-center shrink-0 font-medium text-[#111111] underline underline-offset-4 hover:text-neutral-700 cursor-pointer"
+                  >
+                    Salvar manualmente
+                  </button>
+                )}
               </div>
             )}
           </form>
@@ -729,7 +803,8 @@ export function BookDetailView({
                 Nenhuma palavra salva para este livro ainda.
               </p>
               <p className="mt-1 text-xs text-neutral-500">
-                A IA gera definição clara, sinônimos simples e uma frase de exemplo considerando o contexto da obra.
+                Consulte significados diretamente no Dicio, Aulete, Michaelis e Priberam, com
+                definição, sinônimos e exemplos reais.
               </p>
             </div>
           ) : (
@@ -740,11 +815,24 @@ export function BookDetailView({
                   className="rounded-xl border border-neutral-200 bg-white p-5 space-y-2.5"
                 >
                   <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <h3 className="font-editorial text-lg font-semibold text-[#111111]">
-                        {item.word}
-                      </h3>
-                      <p className="text-xs text-neutral-500">{formatPtBrDate(item.createdAt)}</p>
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-0.5">
+                        <h3 className="font-editorial text-lg font-semibold text-[#111111]">
+                          {item.word}
+                        </h3>
+                        {item.classe && (
+                          <span className="text-xs italic text-neutral-500">{item.classe}</span>
+                        )}
+                      </div>
+                      <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-neutral-500">
+                        {item.fonte && (
+                          <>
+                            <span className="font-medium text-neutral-700">{item.fonte}</span>
+                            <span aria-hidden="true">·</span>
+                          </>
+                        )}
+                        <span>{formatPtBrDate(item.createdAt)}</span>
+                      </div>
                     </div>
                     <button
                       type="button"

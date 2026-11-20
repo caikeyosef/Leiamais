@@ -26,6 +26,8 @@ export interface ReadingNote {
   createdAt: string; // ISO string
 }
 
+export type DictionarySourceId = 'auto' | 'dicio' | 'aulete' | 'michaelis' | 'priberam';
+
 export interface VocabularyWord {
   id: string;
   bookId: string;
@@ -33,6 +35,8 @@ export interface VocabularyWord {
   definicao: string;
   sinonimos: string[];
   exemplo: string;
+  fonte?: string;
+  classe?: string;
   createdAt: string; // ISO string
 }
 

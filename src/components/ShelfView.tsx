@@ -118,7 +118,7 @@ export function ShelfView({ books, readDates, onSelectBook, onOpenAddBook }: She
           </h2>
           <p className="mx-auto mt-2.5 max-w-md text-sm text-neutral-600 leading-relaxed">
             Cadastre sua primeira obra, registre suas páginas diárias, guarde reflexões e construa
-            seu glossário pessoal com ajuda da inteligência artificial.
+            seu glossário pessoal com consulta direta a dicionários de português.
           </p>
           <div className="mt-7">
             <button

@@ -5,6 +5,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI, ThinkingLevel, Type } from '@google/genai';
+import type { DictionarySourceId } from './src/types/reading';
+import { lookupDictionaryServerSide } from './src/utils/dictionaryLookup';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT) || 3000;
@@ -78,6 +80,50 @@ async function startServer() {
 
   app.get('/api/health', (_req, res) => {
     res.json({ ok: true });
+  });
+
+  // 0. Dictionary lookup across Dicio, Aulete, Michaelis, and Priberam (no AI key needed)
+  app.get('/api/dictionary', async (req, res) => {
+    const word = typeof req.query.word === 'string' ? req.query.word.trim() : '';
+    const rawSource =
+      typeof req.query.source === 'string' ? req.query.source.trim().toLowerCase() : 'auto';
+    const validSources = new Set<DictionarySourceId>([
+      'auto',
+      'dicio',
+      'aulete',
+      'michaelis',
+      'priberam',
+    ]);
+    const source: DictionarySourceId = validSources.has(rawSource as DictionarySourceId)
+      ? (rawSource as DictionarySourceId)
+      : 'auto';
+
+    if (!word) {
+      res.status(400).json({ error: 'Digite uma palavra para consultar.' });
+      return;
+    }
+
+    if (word.length > 80) {
+      res.status(400).json({ error: 'Informe apenas uma palavra ou expressão curta.' });
+      return;
+    }
+
+    try {
+      const result = await lookupDictionaryServerSide(word, source);
+      if (!result) {
+        res.status(404).json({
+          error: `Não encontramos "${word}" nas bases do Dicio, Aulete, Michaelis ou Priberam. Verifique a grafia ou salve manualmente.`,
+        });
+        return;
+      }
+
+      res.setHeader('Cache-Control', 'public, max-age=3600');
+      res.json(result);
+    } catch {
+      res.status(502).json({
+        error: 'Não foi possível consultar os dicionários no momento. Tente novamente ou salve manualmente.',
+      });
+    }
   });
 
   // 1. Define a difficult word in structured JSON

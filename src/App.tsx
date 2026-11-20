@@ -209,7 +209,14 @@ export default function App() {
 
   const handleAddWord = (
     bookId: string,
-    payload: { word: string; definicao: string; sinonimos: string[]; exemplo: string }
+    payload: {
+      word: string;
+      definicao: string;
+      sinonimos: string[];
+      exemplo: string;
+      fonte?: string;
+      classe?: string;
+    }
   ) => {
     const newWord: VocabularyWord = {
       id: createId('word'),
@@ -218,6 +225,8 @@ export default function App() {
       definicao: payload.definicao,
       sinonimos: payload.sinonimos,
       exemplo: payload.exemplo,
+      fonte: payload.fonte,
+      classe: payload.classe,
       createdAt: new Date().toISOString(),
     };
     setData((prev) => ({

@@ -123,7 +123,8 @@ export function VocabularyView({
           <p className="mx-auto mt-2 max-w-md text-sm text-neutral-600 leading-relaxed">
             Abra qualquer livro da sua estante e acesse a aba{' '}
             <strong className="font-semibold text-[#111111]">Palavras Difíceis</strong> para
-            consultar significados com IA e salvar termos para revisão.
+            consultar significados no Dicio, Aulete, Michaelis e Priberam e salvar termos para
+            revisão.
           </p>
         </section>
       ) : filteredWords.length === 0 ? (
@@ -143,9 +144,14 @@ export function VocabularyView({
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <h2 className="font-editorial text-xl font-semibold text-[#111111]">
-                      {item.word}
-                    </h2>
+                    <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-0.5">
+                      <h2 className="font-editorial text-xl font-semibold text-[#111111]">
+                        {item.word}
+                      </h2>
+                      {item.classe && (
+                        <span className="text-xs italic text-neutral-500">{item.classe}</span>
+                      )}
+                    </div>
                     <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-neutral-500">
                       {book ? (
                         <button
@@ -157,6 +163,12 @@ export function VocabularyView({
                         </button>
                       ) : (
                         <span>Obra removida</span>
+                      )}
+                      {item.fonte && (
+                        <>
+                          <span aria-hidden="true">·</span>
+                          <span>{item.fonte}</span>
+                        </>
                       )}
                       <span aria-hidden="true">·</span>
                       <span>{formatPtBrDate(item.createdAt)}</span>
