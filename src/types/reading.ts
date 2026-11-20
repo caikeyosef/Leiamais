@@ -46,6 +46,4 @@ export interface AppData {
   vocabulary: VocabularyWord[];
   readDates: string[]; // Unique YYYY-MM-DD strings
   annualGoal: number;
-  readerProfileAnalysis?: string;
-  readerProfileAnalysisAt?: string;
 }

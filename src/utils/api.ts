@@ -122,20 +122,3 @@ export function synthesizeNotesWithAI(
     })),
   });
 }
-
-export interface ReaderProfilePayload {
-  booksCompleted: Array<{ title: string; author: string; totalPages: number }>;
-  booksReading: Array<{ title: string; author: string; currentPage: number; totalPages: number }>;
-  totalPagesRead: number;
-  currentStreak: number;
-  bestStreak: number;
-  vocabularyCount: number;
-  recentWords: string[];
-  annualGoal: number;
-}
-
-export function analyzeReaderProfileWithAI(
-  payload: ReaderProfilePayload
-): Promise<{ analysis: string }> {
-  return postJson<{ analysis: string }>('/api/ai/reader-profile', payload);
-}

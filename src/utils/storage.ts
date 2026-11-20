@@ -25,12 +25,6 @@ export function loadAppData(): AppData {
         typeof parsed.annualGoal === 'number' && parsed.annualGoal >= 1
           ? Math.floor(parsed.annualGoal)
           : 12,
-      readerProfileAnalysis:
-        typeof parsed.readerProfileAnalysis === 'string' ? parsed.readerProfileAnalysis : undefined,
-      readerProfileAnalysisAt:
-        typeof parsed.readerProfileAnalysisAt === 'string'
-          ? parsed.readerProfileAnalysisAt
-          : undefined,
     };
   } catch {
     return { ...DEFAULT_APP_DATA };

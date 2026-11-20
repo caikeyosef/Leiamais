@@ -1,18 +1,14 @@
 import { useState } from 'react';
-import { AlertCircle, Check, Loader2, Pencil, Sparkles } from 'lucide-react';
+import { Check, Pencil } from 'lucide-react';
 import type { Book, VocabularyWord } from '../types/reading';
-import { calculateAnnualStats, formatPtBrDate } from '../utils/readingStats';
-import { analyzeReaderProfileWithAI } from '../utils/api';
+import { calculateAnnualStats } from '../utils/readingStats';
 
 interface PerformanceViewProps {
   books: Book[];
   readDates: string[];
   vocabulary: VocabularyWord[];
   annualGoal: number;
-  readerProfileAnalysis?: string;
-  readerProfileAnalysisAt?: string;
   onUpdateAnnualGoal: (goal: number) => void;
-  onSaveReaderProfileAnalysis: (analysis: string) => void;
 }
 
 export function PerformanceView({
@@ -20,17 +16,12 @@ export function PerformanceView({
   readDates,
   vocabulary,
   annualGoal,
-  readerProfileAnalysis,
-  readerProfileAnalysisAt,
   onUpdateAnnualGoal,
-  onSaveReaderProfileAnalysis,
 }: PerformanceViewProps) {
   const stats = calculateAnnualStats(books, readDates, vocabulary, annualGoal);
 
   const [editingGoal, setEditingGoal] = useState(false);
   const [goalInput, setGoalInput] = useState(String(annualGoal));
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [analysisError, setAnalysisError] = useState<string | null>(null);
 
   const handleGoalSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,43 +29,6 @@ export function PerformanceView({
     if (Number.isFinite(parsed) && parsed >= 1 && parsed <= 365) {
       onUpdateAnnualGoal(parsed);
       setEditingGoal(false);
-    }
-  };
-
-  const handleAnalyzeProfile = async () => {
-    setIsAnalyzing(true);
-    setAnalysisError(null);
-
-    const booksCompleted = books
-      .filter((b) => b.status === 'completed')
-      .map((b) => ({ title: b.title, author: b.author, totalPages: b.totalPages }));
-    const booksReading = books
-      .filter((b) => b.status === 'reading')
-      .map((b) => ({
-        title: b.title,
-        author: b.author,
-        currentPage: b.currentPage,
-        totalPages: b.totalPages,
-      }));
-
-    try {
-      const { analysis } = await analyzeReaderProfileWithAI({
-        booksCompleted,
-        booksReading,
-        totalPagesRead: stats.totalPagesRead,
-        currentStreak: stats.currentStreak,
-        bestStreak: stats.bestStreak,
-        vocabularyCount: stats.vocabularyCount,
-        recentWords: vocabulary.slice(0, 15).map((v) => v.word),
-        annualGoal: stats.annualGoal,
-      });
-      onSaveReaderProfileAnalysis(analysis);
-    } catch (err) {
-      setAnalysisError(
-        err instanceof Error ? err.message : 'Não foi possível gerar a análise do perfil leitor agora.'
-      );
-    } finally {
-      setIsAnalyzing(false);
     }
   };
 
@@ -304,63 +258,6 @@ export function PerformanceView({
             />
           </div>
         </div>
-      </section>
-
-      {/* Gemini Reader Profile Analysis */}
-      <section
-        aria-labelledby="ai-profile-heading"
-        className="rounded-xl border border-neutral-200 bg-white p-5 sm:p-6 space-y-4"
-      >
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h2
-              id="ai-profile-heading"
-              className="font-editorial text-xl font-semibold text-[#111111]"
-            >
-              Análise do meu perfil leitor
-            </h2>
-            <p className="mt-1 text-xs sm:text-sm text-neutral-600">
-              Leitura editorial gerada por IA com base nas suas obras, constância da ofensiva e vocabulário.
-            </p>
-          </div>
-
-          <button
-            type="button"
-            onClick={handleAnalyzeProfile}
-            disabled={isAnalyzing}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[48px] sm:min-h-[44px] rounded-lg bg-[#111111] px-4 py-2.5 text-sm font-medium text-white hover:bg-neutral-800 active:scale-[0.99] disabled:opacity-60 transition-[background-color,transform] whitespace-nowrap shrink-0 cursor-pointer"
-          >
-            {isAnalyzing ? (
-              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-            ) : (
-              <Sparkles className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
-            )}
-            <span>{isAnalyzing ? 'Analisando...' : 'Análise do meu perfil leitor'}</span>
-          </button>
-        </div>
-
-        {analysisError && (
-          <div
-            role="alert"
-            className="flex items-start gap-2.5 rounded-lg border border-red-200 bg-red-50/70 px-4 py-3 text-xs text-red-800"
-          >
-            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-            <span>{analysisError}</span>
-          </div>
-        )}
-
-        {readerProfileAnalysis && (
-          <div className="border-t border-neutral-200 pt-4 space-y-2">
-            <div className="text-sm text-[#111111] leading-relaxed whitespace-pre-line">
-              {readerProfileAnalysis}
-            </div>
-            {readerProfileAnalysisAt && (
-              <p className="text-xs text-neutral-500">
-                Atualizado em {formatPtBrDate(readerProfileAnalysisAt)}
-              </p>
-            )}
-          </div>
-        )}
       </section>
     </div>
   );

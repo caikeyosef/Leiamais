@@ -256,14 +256,6 @@ export default function App() {
     }));
   };
 
-  const handleSaveReaderProfileAnalysis = (analysis: string) => {
-    setData((prev) => ({
-      ...prev,
-      readerProfileAnalysis: analysis,
-      readerProfileAnalysisAt: new Date().toISOString(),
-    }));
-  };
-
   return (
     <div className="min-h-dvh bg-[#FAFAFA] text-[#111111] flex flex-col md:flex-row">
       {/* Desktop Left Sidebar */}
@@ -372,10 +364,7 @@ export default function App() {
               readDates={data.readDates}
               vocabulary={data.vocabulary}
               annualGoal={data.annualGoal}
-              readerProfileAnalysis={data.readerProfileAnalysis}
-              readerProfileAnalysisAt={data.readerProfileAnalysisAt}
               onUpdateAnnualGoal={handleUpdateAnnualGoal}
-              onSaveReaderProfileAnalysis={handleSaveReaderProfileAnalysis}
             />
           ) : (
             <VocabularyView
