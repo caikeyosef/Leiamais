@@ -79,10 +79,10 @@ export function PerformanceView({
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       {/* Header */}
       <div>
-        <h1 className="font-editorial text-3xl sm:text-4xl font-semibold tracking-tight text-[#111111]">
+        <h1 className="font-editorial text-[28px] sm:text-4xl font-semibold tracking-tight text-[#111111] leading-tight">
           Desempenho
         </h1>
         <p className="mt-1 text-sm text-neutral-600">
@@ -91,43 +91,43 @@ export function PerformanceView({
       </div>
 
       {/* 4 Clean Numeric KPI Cards */}
-      <section aria-label="Resumo de métricas de leitura" className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
-        <div className="rounded-xl border border-neutral-200 bg-white p-4 sm:p-5">
-          <p className="text-xs text-neutral-600">Concluídos em {stats.currentYear}</p>
-          <p className="mt-2 font-editorial text-3xl sm:text-4xl font-semibold text-[#111111] tabular-nums">
+      <section aria-label="Resumo de métricas de leitura" className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="rounded-xl border border-neutral-200 bg-white p-3.5 sm:p-5">
+          <p className="text-[11px] sm:text-xs text-neutral-600 leading-snug">Concluídos em {stats.currentYear}</p>
+          <p className="mt-1.5 sm:mt-2 font-editorial text-2xl sm:text-4xl font-semibold text-[#111111] tabular-nums">
             {stats.booksCompletedThisYear}
           </p>
-          <p className="mt-1 text-xs text-neutral-500">
+          <p className="mt-1 text-[11px] sm:text-xs text-neutral-500">
             {stats.booksCompletedThisYear === 1 ? 'livro inteiro' : 'livros inteiros'}
           </p>
         </div>
 
-        <div className="rounded-xl border border-neutral-200 bg-white p-4 sm:p-5">
-          <p className="text-xs text-neutral-600">Total de páginas lidas</p>
-          <p className="mt-2 font-editorial text-3xl sm:text-4xl font-semibold text-[#111111] tabular-nums">
+        <div className="rounded-xl border border-neutral-200 bg-white p-3.5 sm:p-5">
+          <p className="text-[11px] sm:text-xs text-neutral-600 leading-snug">Total de páginas</p>
+          <p className="mt-1.5 sm:mt-2 font-editorial text-2xl sm:text-4xl font-semibold text-[#111111] tabular-nums">
             {stats.totalPagesRead.toLocaleString('pt-BR')}
           </p>
-          <p className="mt-1 text-xs text-neutral-500">acumuladas na estante</p>
+          <p className="mt-1 text-[11px] sm:text-xs text-neutral-500">acumuladas na estante</p>
         </div>
 
-        <div className="rounded-xl border border-neutral-200 bg-white p-4 sm:p-5">
-          <p className="text-xs text-neutral-600">Ofensiva atual / Recorde</p>
-          <p className="mt-2 font-editorial text-3xl sm:text-4xl font-semibold text-[#111111] tabular-nums">
+        <div className="rounded-xl border border-neutral-200 bg-white p-3.5 sm:p-5">
+          <p className="text-[11px] sm:text-xs text-neutral-600 leading-snug">Ofensiva / Recorde</p>
+          <p className="mt-1.5 sm:mt-2 font-editorial text-2xl sm:text-4xl font-semibold text-[#111111] tabular-nums">
             {stats.currentStreak}
-            <span className="text-xl sm:text-2xl font-normal text-neutral-400">
+            <span className="text-lg sm:text-2xl font-normal text-neutral-400">
               {' '}
               / {stats.bestStreak}
             </span>
           </p>
-          <p className="mt-1 text-xs text-neutral-500">dias consecutivos</p>
+          <p className="mt-1 text-[11px] sm:text-xs text-neutral-500">dias consecutivos</p>
         </div>
 
-        <div className="rounded-xl border border-neutral-200 bg-white p-4 sm:p-5">
-          <p className="text-xs text-neutral-600">Palavras aprendidas</p>
-          <p className="mt-2 font-editorial text-3xl sm:text-4xl font-semibold text-[#111111] tabular-nums">
+        <div className="rounded-xl border border-neutral-200 bg-white p-3.5 sm:p-5">
+          <p className="text-[11px] sm:text-xs text-neutral-600 leading-snug">Palavras aprendidas</p>
+          <p className="mt-1.5 sm:mt-2 font-editorial text-2xl sm:text-4xl font-semibold text-[#111111] tabular-nums">
             {stats.vocabularyCount}
           </p>
-          <p className="mt-1 text-xs text-neutral-500">no glossário pessoal</p>
+          <p className="mt-1 text-[11px] sm:text-xs text-neutral-500">no glossário pessoal</p>
         </div>
       </section>
 
@@ -245,13 +245,13 @@ export function PerformanceView({
                 setGoalInput(String(stats.annualGoal));
                 setEditingGoal(true);
               }}
-              className="inline-flex items-center gap-1.5 min-h-[44px] rounded-lg border border-neutral-300 bg-white px-3.5 py-2 text-xs font-medium text-[#111111] hover:bg-neutral-50 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 min-h-[46px] sm:min-h-[44px] rounded-lg border border-neutral-300 bg-white px-3.5 py-2 text-xs font-medium text-[#111111] hover:bg-neutral-50 active:bg-neutral-100 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
             >
               <Pencil className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
               <span>Editar meta ({stats.annualGoal})</span>
             </button>
           ) : (
-            <form onSubmit={handleGoalSubmit} className="flex items-center gap-2">
+            <form onSubmit={handleGoalSubmit} className="flex items-center gap-2 w-full sm:w-auto">
               <label htmlFor="annual-goal-input" className="sr-only">
                 Meta de livros no ano
               </label>
@@ -263,19 +263,19 @@ export function PerformanceView({
                 max={365}
                 value={goalInput}
                 onChange={(e) => setGoalInput(e.target.value)}
-                className="w-20 min-h-[44px] rounded-lg border border-neutral-300 px-3 py-2 text-sm font-mono tabular-nums text-[#111111] focus:border-[#111111] focus:outline-none"
+                className="w-24 sm:w-20 min-h-[46px] sm:min-h-[44px] rounded-lg border border-neutral-300 px-3 py-2 text-base sm:text-sm font-mono tabular-nums text-[#111111] focus:border-[#111111] focus:outline-none"
               />
               <button
                 type="submit"
                 aria-label="Salvar meta anual"
-                className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] rounded-lg bg-[#111111] text-white hover:bg-neutral-800 cursor-pointer"
+                className="inline-flex items-center justify-center min-h-[46px] min-w-[46px] sm:min-h-[44px] sm:min-w-[44px] rounded-lg bg-[#111111] text-white hover:bg-neutral-800 cursor-pointer"
               >
                 <Check className="h-4 w-4" strokeWidth={2} />
               </button>
               <button
                 type="button"
                 onClick={() => setEditingGoal(false)}
-                className="min-h-[44px] px-2.5 text-xs font-medium text-neutral-600 hover:text-[#111111] cursor-pointer"
+                className="min-h-[46px] sm:min-h-[44px] px-2.5 text-xs font-medium text-neutral-600 hover:text-[#111111] cursor-pointer"
               >
                 Cancelar
               </button>
@@ -328,7 +328,7 @@ export function PerformanceView({
             type="button"
             onClick={handleAnalyzeProfile}
             disabled={isAnalyzing}
-            className="inline-flex items-center justify-center gap-2 min-h-[44px] rounded-lg bg-[#111111] px-4 py-2.5 text-sm font-medium text-white hover:bg-neutral-800 disabled:opacity-60 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[48px] sm:min-h-[44px] rounded-lg bg-[#111111] px-4 py-2.5 text-sm font-medium text-white hover:bg-neutral-800 active:scale-[0.99] disabled:opacity-60 transition-[background-color,transform] whitespace-nowrap shrink-0 cursor-pointer"
           >
             {isAnalyzing ? (
               <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />

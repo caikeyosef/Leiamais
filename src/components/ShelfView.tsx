@@ -19,7 +19,7 @@ function BookRowCard({ book, onSelect }: { book: Book; onSelect: () => void }) {
     <button
       type="button"
       onClick={onSelect}
-      className="group w-full text-left rounded-xl border border-neutral-200 bg-white p-4 sm:p-5 hover:border-neutral-400 transition-colors flex items-start gap-4 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#111111]"
+      className="group w-full text-left rounded-xl border border-neutral-200 bg-white p-3.5 sm:p-5 hover:border-neutral-400 active:bg-neutral-50 active:scale-[0.99] transition-[border-color,background-color,transform] flex items-start gap-3.5 sm:gap-4 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#111111]"
     >
       <BookCover title={book.title} author={book.author} coverUrl={book.coverUrl} size="md" />
 
@@ -73,11 +73,11 @@ export function ShelfView({ books, readDates, onSelectBook, onOpenAddBook }: She
   const completedBooks = books.filter((b) => b.status === 'completed');
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       {/* Page Header */}
       <div className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="font-editorial text-3xl sm:text-4xl font-semibold tracking-tight text-[#111111]">
+          <h1 className="font-editorial text-[28px] sm:text-4xl font-semibold tracking-tight text-[#111111] leading-tight">
             Estante
           </h1>
           <p className="mt-1 text-sm text-neutral-600">

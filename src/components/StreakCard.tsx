@@ -15,7 +15,7 @@ export function StreakCard({ readDates }: StreakCardProps) {
   return (
     <section
       aria-label="Ofensiva diária de leitura"
-      className="rounded-xl border border-neutral-200 bg-white px-5 py-4 sm:px-6 sm:py-5"
+      className="rounded-xl border border-neutral-200 bg-white px-4 py-4 sm:px-6 sm:py-5"
     >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-3.5">
@@ -65,7 +65,7 @@ export function StreakCard({ readDates }: StreakCardProps) {
                 {day.weekdayLabel}
               </span>
               <span
-                className={`flex h-6 w-6 items-center justify-center rounded-full transition-colors ${
+                className={`flex h-7 w-7 sm:h-6 sm:w-6 items-center justify-center rounded-full transition-colors ${
                   day.hasRead
                     ? 'bg-[#111111] text-white'
                     : day.isToday
@@ -74,7 +74,7 @@ export function StreakCard({ readDates }: StreakCardProps) {
                 }`}
                 aria-label={`${day.dateKey}: ${day.hasRead ? 'lido' : 'não lido'}`}
               >
-                {day.hasRead && <Check className="h-3 w-3" strokeWidth={2.5} aria-hidden="true" />}
+                {day.hasRead && <Check className="h-3.5 w-3.5 sm:h-3 sm:w-3" strokeWidth={2.5} aria-hidden="true" />}
               </span>
             </div>
           ))}

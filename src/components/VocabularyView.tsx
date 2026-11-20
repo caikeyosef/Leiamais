@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { BookMarked, Search, Trash2 } from 'lucide-react';
+import { BookMarked, ChevronDown, Search, Trash2 } from 'lucide-react';
 import type { Book, VocabularyWord } from '../types/reading';
 import { formatPtBrDate } from '../utils/readingStats';
 
@@ -53,7 +53,7 @@ export function VocabularyView({
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="font-editorial text-3xl sm:text-4xl font-semibold tracking-tight text-[#111111]">
+        <h1 className="font-editorial text-[28px] sm:text-4xl font-semibold tracking-tight text-[#111111] leading-tight">
           Vocabulário
         </h1>
         <p className="mt-1 text-sm text-neutral-600">
@@ -67,7 +67,7 @@ export function VocabularyView({
 
       {/* Search & Book Filter */}
       {vocabulary.length > 0 && (
-        <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3">
           <div className="relative flex-1">
             <Search
               className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400"
@@ -82,12 +82,12 @@ export function VocabularyView({
               type="search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Buscar palavra, definição ou sinônimo..."
-              className="w-full min-h-[44px] rounded-lg border border-neutral-300 bg-white pl-10 pr-4 py-2.5 text-sm text-[#111111] placeholder:text-neutral-400 focus:border-[#111111] focus:outline-none"
+              placeholder="Buscar palavra ou significado..."
+              className="w-full min-h-[46px] sm:min-h-[44px] rounded-lg border border-neutral-300 bg-white pl-10 pr-4 py-2.5 text-base sm:text-sm text-[#111111] placeholder:text-neutral-400 focus:border-[#111111] focus:outline-none"
             />
           </div>
 
-          <div className="sm:w-64">
+          <div className="relative sm:w-64">
             <label htmlFor="vocabulary-book-filter" className="sr-only">
               Filtrar por livro
             </label>
@@ -95,7 +95,7 @@ export function VocabularyView({
               id="vocabulary-book-filter"
               value={selectedBookId}
               onChange={(e) => setSelectedBookId(e.target.value)}
-              className="w-full min-h-[44px] rounded-lg border border-neutral-300 bg-white px-3.5 py-2.5 text-sm text-[#111111] focus:border-[#111111] focus:outline-none cursor-pointer"
+              className="w-full min-h-[46px] sm:min-h-[44px] appearance-none rounded-lg border border-neutral-300 bg-white pl-3.5 pr-10 py-2.5 text-base sm:text-sm text-[#111111] focus:border-[#111111] focus:outline-none cursor-pointer"
             >
               <option value="all">Todas as obras ({vocabulary.length})</option>
               {booksWithWords.map((book) => (
@@ -104,6 +104,11 @@ export function VocabularyView({
                 </option>
               ))}
             </select>
+            <ChevronDown
+              className="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500"
+              strokeWidth={1.75}
+              aria-hidden="true"
+            />
           </div>
         </div>
       )}

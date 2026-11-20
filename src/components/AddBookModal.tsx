@@ -65,6 +65,9 @@ export function AddBookModal({ isOpen, onClose, onAddBook }: AddBookModalProps) 
     setCoverUrl(undefined);
     setFormError(null);
 
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
     const timer = window.setTimeout(() => {
       titleInputRef.current?.focus();
     }, 50);
@@ -74,6 +77,7 @@ export function AddBookModal({ isOpen, onClose, onAddBook }: AddBookModalProps) 
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => {
+      document.body.style.overflow = previousOverflow;
       window.clearTimeout(timer);
       window.removeEventListener('keydown', handleKeyDown);
     };
@@ -161,121 +165,125 @@ export function AddBookModal({ isOpen, onClose, onAddBook }: AddBookModalProps) 
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-5 py-5 sm:px-6 space-y-4">
-          {/* Cover preview + optional local image upload */}
-          <div className="flex items-center gap-4 pb-3 border-b border-neutral-100">
-            <BookCover title={title || 'Novo livro'} author={author || 'Autor'} coverUrl={coverUrl} size="sm" />
-            <div className="min-w-0 flex-1 space-y-1.5">
-              <p className="text-xs font-medium text-[#111111]">
-                {coverUrl ? 'Capa personalizada salva localmente' : 'Capa editorial automática'}
-              </p>
-              <div className="flex flex-wrap items-center gap-2">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleCoverUpload}
-                  className="hidden"
-                  id="local-cover-upload"
-                />
-                <label
-                  htmlFor="local-cover-upload"
-                  className="inline-flex items-center gap-1.5 min-h-[36px] px-3 py-1.5 rounded-md border border-neutral-300 bg-white text-xs font-medium text-[#111111] hover:bg-neutral-50 cursor-pointer"
-                >
-                  <ImagePlus className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
-                  <span>{coverUrl ? 'Trocar foto' : 'Escolher capa (opcional)'}</span>
-                </label>
-                {coverUrl && (
-                  <button
-                    type="button"
-                    onClick={() => setCoverUrl(undefined)}
-                    aria-label="Remover imagem da capa"
-                    className="inline-flex items-center gap-1 min-h-[36px] px-2 text-xs text-neutral-500 hover:text-red-700 cursor-pointer"
+        <form onSubmit={handleSubmit} className="flex-1 min-h-0 flex flex-col">
+          <div className="flex-1 overflow-y-auto px-5 py-4 sm:px-6 sm:py-5 space-y-4">
+            {/* Cover preview + optional local image upload */}
+            <div className="flex items-center gap-4 pb-3 border-b border-neutral-100">
+              <BookCover title={title || 'Novo livro'} author={author || 'Autor'} coverUrl={coverUrl} size="sm" />
+              <div className="min-w-0 flex-1 space-y-1.5">
+                <p className="text-xs font-medium text-[#111111]">
+                  {coverUrl ? 'Capa personalizada salva localmente' : 'Capa editorial automática'}
+                </p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleCoverUpload}
+                    className="hidden"
+                    id="local-cover-upload"
+                  />
+                  <label
+                    htmlFor="local-cover-upload"
+                    className="inline-flex items-center gap-1.5 min-h-[40px] px-3 py-1.5 rounded-lg border border-neutral-300 bg-white text-xs font-medium text-[#111111] hover:bg-neutral-50 active:bg-neutral-100 cursor-pointer"
                   >
-                    <Trash2 className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
-                    <span>Usar padrão</span>
-                  </button>
-                )}
+                    <ImagePlus className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
+                    <span>{coverUrl ? 'Trocar foto' : 'Escolher capa (opcional)'}</span>
+                  </label>
+                  {coverUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setCoverUrl(undefined)}
+                      aria-label="Remover imagem da capa"
+                      className="inline-flex items-center gap-1 min-h-[40px] px-2 text-xs text-neutral-500 hover:text-red-700 cursor-pointer"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
+                      <span>Usar padrão</span>
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
 
-          {formError && (
-            <div
-              role="alert"
-              className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50/70 px-3.5 py-2.5 text-xs text-red-800"
-            >
-              <AlertCircle className="h-4 w-4 shrink-0" strokeWidth={1.75} aria-hidden="true" />
-              <span>{formError}</span>
+            {formError && (
+              <div
+                role="alert"
+                className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50/70 px-3.5 py-2.5 text-xs text-red-800"
+              >
+                <AlertCircle className="h-4 w-4 shrink-0" strokeWidth={1.75} aria-hidden="true" />
+                <span>{formError}</span>
+              </div>
+            )}
+
+            <div className="space-y-1.5">
+              <label htmlFor="manual-book-title" className="block text-xs font-medium text-neutral-700">
+                Título do livro
+              </label>
+              <input
+                ref={titleInputRef}
+                id="manual-book-title"
+                type="text"
+                autoComplete="off"
+                value={title}
+                onChange={(e) => {
+                  setTitle(e.target.value);
+                  if (formError) setFormError(null);
+                }}
+                placeholder="Ex.: Grande Sertão: Veredas"
+                className="w-full min-h-[46px] rounded-lg border border-neutral-300 bg-white px-3.5 py-2.5 text-base sm:text-sm text-[#111111] placeholder:text-neutral-400 focus:border-[#111111] focus:outline-none"
+              />
             </div>
-          )}
 
-          <div className="space-y-1.5">
-            <label htmlFor="manual-book-title" className="block text-xs font-medium text-neutral-700">
-              Título do livro
-            </label>
-            <input
-              ref={titleInputRef}
-              id="manual-book-title"
-              type="text"
-              value={title}
-              onChange={(e) => {
-                setTitle(e.target.value);
-                if (formError) setFormError(null);
-              }}
-              placeholder="Ex.: Grande Sertão: Veredas"
-              className="w-full min-h-[44px] rounded-lg border border-neutral-300 bg-white px-3.5 py-2.5 text-sm text-[#111111] placeholder:text-neutral-400 focus:border-[#111111] focus:outline-none"
-            />
+            <div className="space-y-1.5">
+              <label htmlFor="manual-book-author" className="block text-xs font-medium text-neutral-700">
+                Autor
+              </label>
+              <input
+                id="manual-book-author"
+                type="text"
+                autoComplete="off"
+                value={author}
+                onChange={(e) => {
+                  setAuthor(e.target.value);
+                  if (formError) setFormError(null);
+                }}
+                placeholder="Ex.: João Guimarães Rosa"
+                className="w-full min-h-[46px] rounded-lg border border-neutral-300 bg-white px-3.5 py-2.5 text-base sm:text-sm text-[#111111] placeholder:text-neutral-400 focus:border-[#111111] focus:outline-none"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label htmlFor="manual-book-pages" className="block text-xs font-medium text-neutral-700">
+                Total de páginas
+              </label>
+              <input
+                id="manual-book-pages"
+                type="number"
+                inputMode="numeric"
+                min={1}
+                max={10000}
+                value={totalPages}
+                onChange={(e) => {
+                  setTotalPages(e.target.value);
+                  if (formError) setFormError(null);
+                }}
+                placeholder="Ex.: 256"
+                className="w-full min-h-[46px] rounded-lg border border-neutral-300 bg-white px-3.5 py-2.5 text-base sm:text-sm font-mono tabular-nums text-[#111111] placeholder:text-neutral-400 focus:border-[#111111] focus:outline-none"
+              />
+            </div>
           </div>
 
-          <div className="space-y-1.5">
-            <label htmlFor="manual-book-author" className="block text-xs font-medium text-neutral-700">
-              Autor
-            </label>
-            <input
-              id="manual-book-author"
-              type="text"
-              value={author}
-              onChange={(e) => {
-                setAuthor(e.target.value);
-                if (formError) setFormError(null);
-              }}
-              placeholder="Ex.: João Guimarães Rosa"
-              className="w-full min-h-[44px] rounded-lg border border-neutral-300 bg-white px-3.5 py-2.5 text-sm text-[#111111] placeholder:text-neutral-400 focus:border-[#111111] focus:outline-none"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label htmlFor="manual-book-pages" className="block text-xs font-medium text-neutral-700">
-              Total de páginas
-            </label>
-            <input
-              id="manual-book-pages"
-              type="number"
-              inputMode="numeric"
-              min={1}
-              max={10000}
-              value={totalPages}
-              onChange={(e) => {
-                setTotalPages(e.target.value);
-                if (formError) setFormError(null);
-              }}
-              placeholder="Ex.: 256"
-              className="w-full min-h-[44px] rounded-lg border border-neutral-300 bg-white px-3.5 py-2.5 text-sm font-mono tabular-nums text-[#111111] placeholder:text-neutral-400 focus:border-[#111111] focus:outline-none"
-            />
-          </div>
-
-          <div className="flex items-center justify-end gap-3 pt-3 border-t border-neutral-200">
+          <div className="shrink-0 flex items-center justify-end gap-2.5 border-t border-neutral-200 bg-white px-5 py-3.5 sm:px-6">
             <button
               type="button"
               onClick={onClose}
-              className="min-h-[44px] px-4 py-2 text-sm font-medium text-neutral-700 hover:text-[#111111] cursor-pointer"
+              className="flex-1 sm:flex-none min-h-[48px] sm:min-h-[44px] rounded-lg border border-neutral-300 sm:border-transparent px-4 py-2 text-sm font-medium text-neutral-700 hover:text-[#111111] active:bg-neutral-50 cursor-pointer"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="min-h-[44px] rounded-lg bg-[#111111] px-5 py-2.5 text-sm font-medium text-white hover:bg-neutral-800 transition-colors cursor-pointer"
+              className="flex-[1.5] sm:flex-none min-h-[48px] sm:min-h-[44px] rounded-lg bg-[#111111] px-5 py-2.5 text-sm font-medium text-white hover:bg-neutral-800 active:scale-[0.99] transition-[background-color,transform] cursor-pointer"
             >
               Adicionar à estante
             </button>

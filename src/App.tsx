@@ -63,6 +63,12 @@ export default function App() {
   const handleNavigateTab = (tab: NavigationTab) => {
     setActiveTab(tab);
     setSelectedBookId(null);
+    window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+  };
+
+  const handleSelectBook = (bookId: string) => {
+    setSelectedBookId(bookId);
+    window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
   };
 
   const handleAddBook = (payload: {
@@ -310,12 +316,12 @@ export default function App() {
       </aside>
 
       {/* Mobile Compact Sticky Header */}
-      <header className="md:hidden sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-neutral-200 safe-top">
-        <div className="h-[52px] px-4 flex items-center justify-between gap-3">
+      <header className="md:hidden sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-neutral-200 safe-top select-none">
+        <div className="h-[54px] safe-x flex items-center justify-between gap-3">
           <button
             type="button"
             onClick={() => handleNavigateTab('estante')}
-            className="font-editorial text-xl font-bold tracking-tight text-[#111111] whitespace-nowrap shrink-0 cursor-pointer"
+            className="font-editorial text-xl font-bold tracking-tight text-[#111111] whitespace-nowrap shrink-0 cursor-pointer active:opacity-70"
           >
             LEIA +
           </button>
@@ -324,7 +330,7 @@ export default function App() {
             <button
               type="button"
               onClick={() => setIsAddModalOpen(true)}
-              className="inline-flex items-center gap-1.5 min-h-[40px] rounded-lg bg-[#111111] px-3.5 py-2 text-xs font-medium text-white hover:bg-neutral-800 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+              className="inline-flex items-center gap-1.5 min-h-[40px] rounded-lg bg-[#111111] px-3.5 py-2 text-xs font-medium text-white hover:bg-neutral-800 active:scale-[0.98] transition-[background-color,transform] whitespace-nowrap shrink-0 cursor-pointer"
             >
               <Plus className="h-3.5 w-3.5" strokeWidth={2.25} aria-hidden="true" />
               <span>Novo Livro</span>
@@ -334,8 +340,8 @@ export default function App() {
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 md:pl-64 pb-24 md:pb-12">
-        <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-8 sm:py-10">
+      <main className="flex-1 md:pl-64 main-safe-bottom">
+        <div className="mx-auto w-full max-w-5xl safe-x py-5 sm:px-8 sm:py-10">
           {selectedBook ? (
             <BookDetailView
               book={selectedBook}
@@ -357,7 +363,7 @@ export default function App() {
             <ShelfView
               books={data.books}
               readDates={data.readDates}
-              onSelectBook={(id) => setSelectedBookId(id)}
+              onSelectBook={handleSelectBook}
               onOpenAddBook={() => setIsAddModalOpen(true)}
             />
           ) : activeTab === 'desempenho' ? (
@@ -378,7 +384,7 @@ export default function App() {
               onDeleteWord={handleDeleteWord}
               onSelectBook={(id) => {
                 setActiveTab('estante');
-                setSelectedBookId(id);
+                handleSelectBook(id);
               }}
             />
           )}
@@ -388,9 +394,9 @@ export default function App() {
       {/* Mobile Fixed Bottom Navigation Bar */}
       <nav
         aria-label="Navegação inferior"
-        className="md:hidden fixed bottom-0 left-0 right-0 z-30 border-t border-neutral-200 bg-white/95 backdrop-blur-md safe-bottom"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-30 border-t border-neutral-200 bg-white/95 backdrop-blur-md safe-bottom select-none"
       >
-        <div className="grid grid-cols-3 h-[58px]">
+        <div className="grid grid-cols-3 h-[60px]">
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
@@ -400,7 +406,7 @@ export default function App() {
                 type="button"
                 onClick={() => handleNavigateTab(item.id)}
                 aria-current={isActive ? 'page' : undefined}
-                className={`flex flex-col items-center justify-center gap-1 min-h-[44px] transition-colors cursor-pointer ${
+                className={`flex flex-col items-center justify-center gap-1 min-h-[48px] transition-colors active:opacity-70 cursor-pointer ${
                   isActive ? 'text-[#111111]' : 'text-neutral-400 hover:text-neutral-700'
                 }`}
               >

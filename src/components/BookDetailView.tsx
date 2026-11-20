@@ -20,12 +20,12 @@ import { calculateBookProgress, formatPtBrDate } from '../utils/readingStats';
 import { lookupWordInDictionaries, synthesizeNotesWithAI } from '../utils/api';
 import { BookCover } from './BookCover';
 
-const DICTIONARY_SOURCES: Array<{ id: DictionarySourceId; label: string }> = [
-  { id: 'auto', label: 'Todas as bases' },
-  { id: 'dicio', label: 'Dicio' },
-  { id: 'aulete', label: 'Aulete' },
-  { id: 'michaelis', label: 'Michaelis' },
-  { id: 'priberam', label: 'Priberam' },
+const DICTIONARY_SOURCES: Array<{ id: DictionarySourceId; label: string; shortLabel: string }> = [
+  { id: 'auto', label: 'Todas as bases', shortLabel: 'Todas' },
+  { id: 'dicio', label: 'Dicio', shortLabel: 'Dicio' },
+  { id: 'aulete', label: 'Aulete', shortLabel: 'Aulete' },
+  { id: 'michaelis', label: 'Michaelis', shortLabel: 'Michaelis' },
+  { id: 'priberam', label: 'Priberam', shortLabel: 'Priberam' },
 ];
 
 interface BookDetailViewProps {
@@ -263,15 +263,15 @@ export function BookDetailView({
       </div>
 
       {/* Book Header Summary */}
-      <header className="flex items-start gap-5 border-b border-neutral-200 pb-6">
+      <header className="flex items-start gap-4 sm:gap-5 border-b border-neutral-200 pb-5 sm:pb-6">
         <BookCover title={book.title} author={book.author} coverUrl={book.coverUrl} size="lg" />
-        <div className="min-w-0 flex-1 space-y-2">
-          <h1 className="font-editorial text-2xl sm:text-3xl font-semibold text-[#111111] leading-tight text-balance">
+        <div className="min-w-0 flex-1 space-y-1.5 sm:space-y-2">
+          <h1 className="font-editorial text-xl sm:text-3xl font-semibold text-[#111111] leading-tight text-balance">
             {book.title}
           </h1>
-          <p className="text-sm sm:text-base text-neutral-600">{book.author}</p>
+          <p className="text-sm sm:text-base text-neutral-600 truncate">{book.author}</p>
           <div className="pt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-neutral-500 font-mono tabular-nums">
-            <span>{book.totalPages} páginas</span>
+            <span>{book.totalPages} págs.</span>
             <span aria-hidden="true">·</span>
             <span>{isCompleted ? 'Concluído' : 'Lendo agora'}</span>
             {isCompleted && book.completedAt && (
@@ -284,17 +284,21 @@ export function BookDetailView({
         </div>
       </header>
 
-      {/* 3 Sub-tabs */}
+      {/* 3 Sub-tabs — 3-column fit on iPhone, editorial strip on desktop */}
       <div
         role="tablist"
         aria-label="Seções do livro"
-        className="flex items-center border-b border-neutral-200 gap-6 overflow-x-auto"
+        className="grid grid-cols-3 sm:flex sm:items-center border-b border-neutral-200 sm:gap-6 select-none"
       >
         {(
           [
-            { id: 'progresso', label: 'Progresso' },
-            { id: 'notas', label: `Diário / Notas (${notes.length})` },
-            { id: 'palavras', label: `Palavras Difíceis (${words.length})` },
+            { id: 'progresso', label: 'Progresso', shortLabel: 'Progresso' },
+            { id: 'notas', label: `Diário / Notas (${notes.length})`, shortLabel: `Notas (${notes.length})` },
+            {
+              id: 'palavras',
+              label: `Palavras Difíceis (${words.length})`,
+              shortLabel: `Palavras (${words.length})`,
+            },
           ] as const
         ).map((tab) => {
           const selected = activeSubTab === tab.id;
@@ -304,12 +308,14 @@ export function BookDetailView({
               role="tab"
               type="button"
               aria-selected={selected}
+              aria-label={tab.label}
               onClick={() => setActiveSubTab(tab.id)}
-              className={`relative min-h-[44px] pb-3 pt-1 text-sm font-medium transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+              className={`relative min-h-[46px] pb-3 pt-1.5 text-center sm:text-left text-[13px] sm:text-sm font-medium transition-colors whitespace-nowrap shrink-0 cursor-pointer active:opacity-75 ${
                 selected ? 'text-[#111111]' : 'text-neutral-500 hover:text-neutral-800'
               }`}
             >
-              {tab.label}
+              <span className="sm:hidden">{tab.shortLabel}</span>
+              <span className="hidden sm:inline">{tab.label}</span>
               {selected && (
                 <span
                   className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#111111]"
@@ -365,7 +371,7 @@ export function BookDetailView({
             </div>
 
             {/* Page Update Controls */}
-            <div className="border-t border-neutral-200 pt-6 space-y-4">
+            <div className="border-t border-neutral-200 pt-5 sm:pt-6 space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-end gap-4">
                 <form
                   onSubmit={(e) => {
@@ -387,11 +393,11 @@ export function BookDetailView({
                       value={pageInput}
                       onChange={(e) => setPageInput(e.target.value)}
                       onBlur={() => commitPageValue(pageInput)}
-                      className="w-32 min-h-[44px] rounded-lg border border-neutral-300 bg-white px-3.5 py-2 text-base font-mono tabular-nums text-[#111111] focus:border-[#111111] focus:outline-none"
+                      className="flex-1 sm:flex-none sm:w-32 min-h-[48px] sm:min-h-[44px] rounded-lg border border-neutral-300 bg-white px-3.5 py-2 text-base font-mono tabular-nums text-[#111111] focus:border-[#111111] focus:outline-none"
                     />
                     <button
                       type="submit"
-                      className="min-h-[44px] rounded-lg border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-[#111111] hover:bg-neutral-50 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+                      className="min-h-[48px] sm:min-h-[44px] rounded-lg border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-[#111111] hover:bg-neutral-50 active:bg-neutral-100 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
                     >
                       Atualizar
                     </button>
@@ -401,14 +407,14 @@ export function BookDetailView({
                 {/* Quick Increment Buttons */}
                 <div className="space-y-1.5">
                   <span className="block text-xs font-medium text-neutral-700">Avanço rápido</span>
-                  <div className="flex items-center gap-2">
+                  <div className="grid grid-cols-3 sm:flex sm:items-center gap-2">
                     {[5, 10, 20].map((step) => (
                       <button
                         key={step}
                         type="button"
                         onClick={() => handleQuickIncrement(step)}
                         disabled={book.currentPage >= book.totalPages}
-                        className="min-h-[44px] min-w-[56px] rounded-lg border border-neutral-300 bg-white px-3.5 py-2 text-sm font-mono font-medium text-[#111111] hover:border-[#111111] hover:bg-[#111111] hover:text-white disabled:opacity-40 disabled:pointer-events-none transition-colors tabular-nums cursor-pointer"
+                        className="min-h-[48px] sm:min-h-[44px] sm:min-w-[56px] rounded-lg border border-neutral-300 bg-white px-3.5 py-2 text-sm font-mono font-medium text-[#111111] hover:border-[#111111] hover:bg-[#111111] hover:text-white active:bg-[#111111] active:text-white disabled:opacity-40 disabled:pointer-events-none transition-colors tabular-nums cursor-pointer"
                       >
                         +{step}
                       </button>
@@ -418,12 +424,12 @@ export function BookDetailView({
               </div>
 
               {/* Edit total pages inline */}
-              <div className="pt-2">
+              <div className="pt-1">
                 {!editingTotal ? (
                   <button
                     type="button"
                     onClick={() => setEditingTotal(true)}
-                    className="text-xs text-neutral-500 underline underline-offset-4 hover:text-[#111111] cursor-pointer"
+                    className="min-h-[36px] text-xs text-neutral-500 underline underline-offset-4 hover:text-[#111111] cursor-pointer"
                   >
                     Ajustar total de páginas ({book.totalPages})
                   </button>
@@ -439,11 +445,11 @@ export function BookDetailView({
                       min={1}
                       value={totalPagesInput}
                       onChange={(e) => setTotalPagesInput(e.target.value)}
-                      className="w-24 min-h-[38px] rounded-md border border-neutral-300 px-2.5 py-1 text-xs font-mono tabular-nums text-[#111111] focus:border-[#111111] focus:outline-none"
+                      className="w-24 min-h-[44px] sm:min-h-[38px] rounded-md border border-neutral-300 px-2.5 py-1 text-base sm:text-xs font-mono tabular-nums text-[#111111] focus:border-[#111111] focus:outline-none"
                     />
                     <button
                       type="submit"
-                      className="min-h-[38px] rounded-md bg-[#111111] px-3 py-1 text-xs font-medium text-white hover:bg-neutral-800 cursor-pointer"
+                      className="min-h-[44px] sm:min-h-[38px] rounded-md bg-[#111111] px-3.5 py-1 text-xs font-medium text-white hover:bg-neutral-800 cursor-pointer"
                     >
                       Salvar
                     </button>
@@ -453,7 +459,7 @@ export function BookDetailView({
                         setTotalPagesInput(String(book.totalPages));
                         setEditingTotal(false);
                       }}
-                      className="min-h-[38px] px-2 text-xs text-neutral-600 hover:text-[#111111] cursor-pointer"
+                      className="min-h-[44px] sm:min-h-[38px] px-2.5 text-xs text-neutral-600 hover:text-[#111111] cursor-pointer"
                     >
                       Cancelar
                     </button>
@@ -472,7 +478,7 @@ export function BookDetailView({
                   <button
                     type="button"
                     onClick={() => onCompleteBook(book.id)}
-                    className="inline-flex items-center justify-center gap-2 min-h-[44px] rounded-lg bg-[#111111] px-5 py-2.5 text-sm font-medium text-white hover:bg-neutral-800 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[48px] sm:min-h-[44px] rounded-lg bg-[#111111] px-5 py-2.5 text-sm font-medium text-white hover:bg-neutral-800 active:scale-[0.99] transition-[background-color,transform] whitespace-nowrap shrink-0 cursor-pointer"
                   >
                     <CheckCircle2 className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
                     <span>Concluir livro</span>
@@ -486,7 +492,7 @@ export function BookDetailView({
                   <button
                     type="button"
                     onClick={() => onReopenBook(book.id)}
-                    className="inline-flex items-center justify-center gap-2 min-h-[44px] rounded-lg border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-[#111111] hover:bg-neutral-50 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[48px] sm:min-h-[44px] rounded-lg border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-[#111111] hover:bg-neutral-50 active:bg-neutral-100 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
                   >
                     <RotateCcw className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
                     <span>Retomar leitura</span>
@@ -523,7 +529,7 @@ export function BookDetailView({
                 if (noteError) setNoteError(null);
               }}
               placeholder="Registre o que leu, ideias que chamou atenção ou uma citação da obra..."
-              className="w-full rounded-lg border border-neutral-300 bg-white px-3.5 py-3 text-sm text-[#111111] placeholder:text-neutral-400 focus:border-[#111111] focus:outline-none resize-y leading-relaxed"
+              className="w-full rounded-lg border border-neutral-300 bg-white px-3.5 py-3 text-base sm:text-sm text-[#111111] placeholder:text-neutral-400 focus:border-[#111111] focus:outline-none resize-y leading-relaxed"
             />
 
             {noteError && (
@@ -533,12 +539,12 @@ export function BookDetailView({
               </p>
             )}
 
-            <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+            <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-2.5 sm:gap-3 pt-1">
               <button
                 type="button"
                 onClick={handleSynthesizeNotes}
                 disabled={notes.length === 0 || isSynthesizing}
-                className="inline-flex items-center gap-2 min-h-[44px] rounded-lg border border-neutral-300 bg-white px-4 py-2 text-xs sm:text-sm font-medium text-[#111111] hover:border-[#111111] disabled:opacity-45 disabled:pointer-events-none transition-colors whitespace-nowrap cursor-pointer"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[46px] sm:min-h-[44px] rounded-lg border border-neutral-300 bg-white px-4 py-2 text-xs sm:text-sm font-medium text-[#111111] hover:border-[#111111] disabled:opacity-45 disabled:pointer-events-none transition-colors whitespace-nowrap cursor-pointer"
               >
                 {isSynthesizing ? (
                   <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
@@ -550,7 +556,7 @@ export function BookDetailView({
 
               <button
                 type="submit"
-                className="min-h-[44px] rounded-lg bg-[#111111] px-5 py-2.5 text-sm font-medium text-white hover:bg-neutral-800 transition-colors whitespace-nowrap cursor-pointer"
+                className="w-full sm:w-auto min-h-[48px] sm:min-h-[44px] rounded-lg bg-[#111111] px-5 py-2.5 text-sm font-medium text-white hover:bg-neutral-800 active:scale-[0.99] transition-[background-color,transform] whitespace-nowrap cursor-pointer"
               >
                 Salvar anotação
               </button>
@@ -660,7 +666,7 @@ export function BookDetailView({
                 <div
                   role="radiogroup"
                   aria-label="Escolher dicionário de referência"
-                  className="flex flex-wrap gap-1.5"
+                  className="flex items-center justify-between sm:justify-start gap-1 sm:gap-1.5 sm:flex-wrap"
                 >
                   {DICTIONARY_SOURCES.map((src) => {
                     const selected = dictionarySource === src.id;
@@ -670,15 +676,17 @@ export function BookDetailView({
                         type="button"
                         role="radio"
                         aria-checked={selected}
+                        aria-label={src.label}
                         onClick={() => setDictionarySource(src.id)}
                         disabled={isDefiningWord}
-                        className={`min-h-[34px] rounded-md border px-2.5 py-1 text-xs font-medium transition-colors whitespace-nowrap cursor-pointer ${
+                        className={`min-h-[38px] sm:min-h-[34px] flex-1 sm:flex-none rounded-md border px-1.5 sm:px-2.5 py-1 text-[11px] sm:text-xs font-medium transition-colors whitespace-nowrap cursor-pointer ${
                           selected
                             ? 'border-[#111111] bg-[#111111] text-white'
                             : 'border-neutral-300 bg-white text-neutral-700 hover:border-[#111111] hover:text-[#111111]'
                         }`}
                       >
-                        {src.label}
+                        <span className="sm:hidden">{src.shortLabel}</span>
+                        <span className="hidden sm:inline">{src.label}</span>
                       </button>
                     );
                   })}
@@ -690,20 +698,22 @@ export function BookDetailView({
               <input
                 id="difficult-word-input"
                 type="text"
+                autoComplete="off"
+                autoCapitalize="none"
                 value={wordDraft}
                 onChange={(e) => {
                   setWordDraft(e.target.value);
                   if (wordError) setWordError(null);
                 }}
-                placeholder="Digite uma palavra que você não entendeu..."
+                placeholder="Digite uma palavra..."
                 disabled={isDefiningWord}
-                className="flex-1 min-h-[44px] rounded-lg border border-neutral-300 bg-white px-3.5 py-2.5 text-sm text-[#111111] placeholder:text-neutral-400 focus:border-[#111111] focus:outline-none disabled:bg-neutral-50"
+                className="flex-1 min-h-[48px] sm:min-h-[44px] rounded-lg border border-neutral-300 bg-white px-3.5 py-2.5 text-base sm:text-sm text-[#111111] placeholder:text-neutral-400 focus:border-[#111111] focus:outline-none disabled:bg-neutral-50"
               />
               {!manualWordMode && (
                 <button
                   type="submit"
                   disabled={isDefiningWord}
-                  className="inline-flex items-center justify-center gap-2 min-h-[44px] rounded-lg bg-[#111111] px-5 py-2.5 text-sm font-medium text-white hover:bg-neutral-800 disabled:opacity-60 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[48px] sm:min-h-[44px] rounded-lg bg-[#111111] px-5 py-2.5 text-sm font-medium text-white hover:bg-neutral-800 active:scale-[0.99] disabled:opacity-60 transition-[background-color,transform] whitespace-nowrap shrink-0 cursor-pointer"
                 >
                   {isDefiningWord ? (
                     <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
@@ -730,7 +740,7 @@ export function BookDetailView({
                       if (wordError) setWordError(null);
                     }}
                     placeholder="Explique o significado com suas palavras..."
-                    className="w-full min-h-[44px] rounded-lg border border-neutral-300 bg-white px-3.5 py-2 text-sm text-[#111111] placeholder:text-neutral-400 focus:border-[#111111] focus:outline-none"
+                    className="w-full min-h-[46px] sm:min-h-[44px] rounded-lg border border-neutral-300 bg-white px-3.5 py-2 text-base sm:text-sm text-[#111111] placeholder:text-neutral-400 focus:border-[#111111] focus:outline-none"
                   />
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -744,7 +754,7 @@ export function BookDetailView({
                       value={manualSynonyms}
                       onChange={(e) => setManualSynonyms(e.target.value)}
                       placeholder="Ex.: indireta, inclinada"
-                      className="w-full min-h-[44px] rounded-lg border border-neutral-300 bg-white px-3.5 py-2 text-sm text-[#111111] placeholder:text-neutral-400 focus:border-[#111111] focus:outline-none"
+                      className="w-full min-h-[46px] sm:min-h-[44px] rounded-lg border border-neutral-300 bg-white px-3.5 py-2 text-base sm:text-sm text-[#111111] placeholder:text-neutral-400 focus:border-[#111111] focus:outline-none"
                     />
                   </div>
                   <div className="space-y-1">
@@ -757,14 +767,14 @@ export function BookDetailView({
                       value={manualExample}
                       onChange={(e) => setManualExample(e.target.value)}
                       placeholder="Ex.: Olhos de cigana oblíqua..."
-                      className="w-full min-h-[44px] rounded-lg border border-neutral-300 bg-white px-3.5 py-2 text-sm text-[#111111] placeholder:text-neutral-400 focus:border-[#111111] focus:outline-none"
+                      className="w-full min-h-[46px] sm:min-h-[44px] rounded-lg border border-neutral-300 bg-white px-3.5 py-2 text-base sm:text-sm text-[#111111] placeholder:text-neutral-400 focus:border-[#111111] focus:outline-none"
                     />
                   </div>
                 </div>
                 <div className="flex justify-end">
                   <button
                     type="submit"
-                    className="min-h-[44px] rounded-lg bg-[#111111] px-5 py-2.5 text-sm font-medium text-white hover:bg-neutral-800 transition-colors cursor-pointer"
+                    className="w-full sm:w-auto min-h-[48px] sm:min-h-[44px] rounded-lg bg-[#111111] px-5 py-2.5 text-sm font-medium text-white hover:bg-neutral-800 active:scale-[0.99] transition-[background-color,transform] cursor-pointer"
                   >
                     Salvar palavra
                   </button>

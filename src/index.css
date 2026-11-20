@@ -12,21 +12,39 @@
     background-color: #FAFAFA;
     color: #111111;
     -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    touch-action: pan-x pan-y;
+    overscroll-behavior-y: none;
+    overflow-x: clip;
   }
 
   body {
     margin: 0;
     background-color: #FAFAFA;
     color: #111111;
-    overflow-x: hidden;
+    overflow-x: clip;
+    overscroll-behavior-y: none;
+    touch-action: pan-x pan-y;
   }
 
   button,
   a,
+  label,
   input,
   textarea,
   select {
     font-family: inherit;
+    touch-action: manipulation;
+  }
+
+  /* Prevent iOS Safari automatic zoom when focusing form fields (<16px triggers zoom) */
+  @media (max-width: 767px) {
+    input,
+    textarea,
+    select {
+      font-size: 16px;
+    }
   }
 }
 
@@ -36,6 +54,30 @@
 
 .safe-bottom {
   padding-bottom: env(safe-area-inset-bottom);
+}
+
+.safe-x {
+  padding-left: max(1rem, env(safe-area-inset-left));
+  padding-right: max(1rem, env(safe-area-inset-right));
+}
+
+.main-safe-bottom {
+  padding-bottom: calc(6.25rem + env(safe-area-inset-bottom));
+}
+
+@media (min-width: 768px) {
+  .main-safe-bottom {
+    padding-bottom: 3rem;
+  }
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 .font-editorial {
